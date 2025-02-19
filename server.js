@@ -8,7 +8,7 @@ const mongoose = require("mongoose");
 require("dotenv").config();
 
 const app = express();
-app.use(cors({ origin: "*", credentials: true }));
+app.use(cors({ origin: process.env.FRONTEND_URL || "*", credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 
@@ -27,9 +27,7 @@ const userSchema = new mongoose.Schema({
 
 const User = mongoose.model("User",userSchema);
 
-const JWT_SECRET = crypto.randomBytes(32).toString("hex");
-console.log("Generated JWT Secret Key:", JWT_SECRET);
-
+const JWT_SECRET = process.env.JWT_SECRET;
 
 const users = [];
 
@@ -82,8 +80,8 @@ res.status(500).json({error:"server error"});
 });
 
 // Start Server
-const PORT = 5000;
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-});
+const PORT = process.env.PORT || 5000;
 
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
