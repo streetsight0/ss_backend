@@ -33,6 +33,9 @@ console.log("Generated JWT Secret Key:", JWT_SECRET);
 
 const users = [];
 
+app.use('/', (req, res) => {
+    res.send("Welcome to the server");
+  });
 
 app.post("/register", async (req, res) => {
     const { username, email, password } = req.body;
