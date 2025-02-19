@@ -31,7 +31,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 const users = [];
 
-app.use('/', (req, res) => {
+app.get('/', (req, res) => {
     res.send("Welcome to the server");
   });
 
