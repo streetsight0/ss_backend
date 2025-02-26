@@ -15,7 +15,7 @@ const createClient = async (req, res) => {
     });
 
     await newClient.save();
-    res.status(201).json({ success: true, data: newClient });
+    res.status(201).json({ data: newClient });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
@@ -25,7 +25,7 @@ const createClient = async (req, res) => {
 const getClients = async (req, res) => {
   try {
     const clients = await Client.find();
-    res.json({ success: true, data: clients });
+    res.json({data:clients});
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
@@ -38,7 +38,7 @@ const getClientById = async (req, res) => {
     if (!client) {
       return res.status(404).json({ success: false, message: "Client not found" });
     }
-    res.json({ success: true, data: client });
+    res.json({data: client });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
@@ -51,7 +51,7 @@ const updateClient = async (req, res) => {
     if (!updatedClient) {
       return res.status(404).json({ success: false, message: "Client not found" });
     }
-    res.json({ success: true, data: updatedClient });
+    res.json({ data: updatedClient });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
@@ -64,7 +64,7 @@ const deleteClient = async (req, res) => {
     if (!deletedClient) {
       return res.status(404).json({ success: false, message: "Client not found" });
     }
-    res.json({ success: true, message: "Client deleted successfully" });
+    res.json({ message: "Client deleted successfully" });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
