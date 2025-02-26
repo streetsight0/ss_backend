@@ -5,7 +5,7 @@ const createCampaign = async (req, res) => {
   try {
     const campaign = new Campaign(req.body);
     await campaign.save();
-    res.status(201).json({ success: true, data: campaign });
+    res.status(201).json({data: campaign });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
@@ -15,7 +15,7 @@ const createCampaign = async (req, res) => {
 const getCampaigns = async (req, res) => {
   try {
     const campaigns = await Campaign.find().populate("billboards").populate("client_id");
-    res.json({ success: true, data: campaigns });
+    res.json({ data: campaigns });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
@@ -30,7 +30,7 @@ const getCampaignById = async (req, res) => {
     if (!campaign) {
       return res.status(404).json({ success: false, message: "Campaign not found" });
     }
-    res.json({ success: true, data: campaign });
+    res.json({data: campaign });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
@@ -47,7 +47,7 @@ const updateCampaign = async (req, res) => {
     if (!campaign) {
       return res.status(404).json({ success: false, message: "Campaign not found" });
     }
-    res.json({ success: true, data: campaign });
+    res.json({data: campaign });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
@@ -60,7 +60,7 @@ const updateCampaign = async (req, res) => {
     if (!campaign) {
       return res.status(404).json({ success: false, message: "Campaign not found" });
     }
-    res.json({ success: true, message: "Campaign deleted successfully" });
+    res.json({message: "Campaign deleted successfully" });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
