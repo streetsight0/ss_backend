@@ -1,18 +1,10 @@
 const express = require("express");
-// const {addBillBoard} = require("../controller/billBoardController");
-const {
-	createBillBoard,
-	getBillBoards,
-	getBillBoardById,
-	updateBillBoard,
-	deleteBillBoard,
-} = require("../controller/billBoardController");
-const route = express.Router();
-
-// Routes
-route.post("/createbillboards", createBillBoard);
-route.get("/getbillboards", getBillBoards);
-route.get("/getbillboards/:id", getBillBoardById);
-route.put("/updatebillboards/:id", updateBillBoard); // Update
-route.delete("/deletebillboards/:id", deleteBillBoard); // Delete
-module.exports = route;
+const { createBillBoard, getBillBoards, getBillBoardById, updateBillBoard, deleteBillBoard } = require("../controller/billBoardController");
+const { upload } = require("../config/cloudinary");
+const router = express.Router();
+router.post("/createbillboards", upload.array("billboard_images", 5), createBillBoard);
+router.get("/getbillboards", getBillBoards);
+router.get("getbillboards/:id", getBillBoardById);
+router.put("updatebillboards/:id", upload.array("billboard_images", 5), updateBillBoard);
+router.delete("/:id", deleteBillBoard);
+module.exports = router;
