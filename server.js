@@ -8,6 +8,7 @@ const mongoose = require("mongoose");
 const routePath = require("./routes/billBoardRoute.js")
 const campRoutePath=require("./routes/campaignRoute.js")
 const clientRoutePath=require("./routes/clientRoute.js")
+const invoiceRoutePath = require("./routes/invoiceRoute.js")
 require("dotenv").config();
 
 const app = express();
@@ -89,11 +90,9 @@ app.post("/login", async (req, res) => {
 });
 
 app.use("/api/billboard", routePath);
-
-
 app.use("/api/campaign", campRoutePath)
-
 app.use("/api/client", clientRoutePath)
+app.use("/api/invoice", invoiceRoutePath);
 
 
 const PORT = process.env.PORT || 5000;
