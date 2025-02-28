@@ -1,18 +1,11 @@
-const express = require('express');
-const {
-  createCampaign,
-  getCampaigns,
-  getCampaignById,
-  updateCampaign,
-  deleteCampaign
-} = require('../controller/campaignController');
-
+const express = require("express");
+const { createCampaign, getCampaigns, getCampaignById, updateCampaign, deleteCampaign } = require("../controller/campaignController");
+const { upload } = require("../config/cloudinary");
 const route = express.Router();
-
-route.post("/createcampaigns", createCampaign); // Create a new campaign
-route.get("/getcampaigns", getCampaigns); // Get all campaigns
-route.get("/getcampaigns/:id", getCampaignById); // Get campaign by ID
-route.put("/updatecampaigns/:id", updateCampaign); // Update campaign
-route.delete("/deletecampaigns/:id", deleteCampaign); // Delete campaign
+route.post("/createcampaigns", upload.array("campaign_images", 5), createCampaign); // Accepts up to 5 images
+route.get("/getcampaigns", getCampaigns);
+route.get("/getcampaigns/:id", getCampaignById);
+route.put("/updatecampaigns/:id", upload.array("campaign_images", 5), updateCampaign);
+route.delete("/deletecampaigns/:id", deleteCampaign);
 
 module.exports = route;

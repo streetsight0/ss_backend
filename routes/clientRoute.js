@@ -1,10 +1,10 @@
 const express = require("express");
 const {
-  createClient,
-  getClients,
-  getClientById,
-  updateClient,
-  deleteClient
+	createClient,
+	getClients,
+	getClientById,
+	updateClient,
+	deleteClient,
 } = require("../controller/clientController");
 
 const route = express.Router();

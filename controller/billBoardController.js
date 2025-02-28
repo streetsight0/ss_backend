@@ -1,80 +1,76 @@
-const addBillboardSchema = require("../model/billBoardModel");
+const Billboard = require("../model/billBoardModel");
+const { upload, cloudinary } = require("../config/cloudinary");
 
-// to create a new bill board
+// Create a new billboard
 const createBillBoard = async (req, res) => {
-    pricePerMonth: {
-        const {billboard_series , billboard_type, location,size,leaseStart,leaseEnd,pricePerMonth,uploadImages} = req.body;
-
-    try {
-        const newBillboard = new addBillboardSchema({ billboard_series, billboard_type, location,size,leaseStart,leaseEnd,pricePerMonth,uploadImages });
-        await newBillboard.save();
-        res.status(201).json({ message: "Billboard created successfully!", addBillboardSchema: newBillboard });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: error.message });
-    }
+	try {
+		console.log("Received Body:", req.body); // Log form data
+		console.log("Received Files:", req.files);
+		const uploadedImages = req.files.map((file) => file.path); // Extract image URLs
+		const billboard = new Billboard({ ...req.body, billboard_images: uploadedImages });
+		await billboard.save();
+		res.status(201).json({ message: "Billboard created successfully!", billboard });
+	} catch (error) {
+		console.error(error);
+		res.status(500).json({ error: error.message });
+	}
 };
-}
-//to get all billboards
+
+// Get all billboards
 const getBillBoards = async (req, res) => {
-    try {
-        const billboards = await addBillboardSchema.find(); // Retrieve all documents
-        res.status(200).json(billboards); // Send response
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: error.message });
-    }
+	try {
+		const billboards = await Billboard.find();
+		res.status(200).json(billboards);
+	} catch (error) {
+		console.error(error);
+		res.status(500).json({ error: error.message });
+	}
 };
-//to get a particular bboard
+
+// Get a specific billboard by ID
 const getBillBoardById = async (req, res) => {
-    try {
-        const { id } = req.params; // Extract ID from URL
-        const billboard = await addBillboardSchema.findById(id); // Find billboard by ID
-
-        if (!billboard) {
-            return res.status(404).json({ message: "Billboard not found" });
-        }
-
-        res.status(200).json(billboard);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: error.message });
-    }
+	try {
+		const { id } = req.params;
+		const billboard = await Billboard.findById(id);
+		if (!billboard) return res.status(404).json({ message: "Billboard not found" });
+		res.status(200).json(billboard);
+	} catch (error) {
+		console.error(error);
+		res.status(500).json({ error: error.message });
+	}
 };
-
 
 // Update a billboard by ID
 const updateBillBoard = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const updatedBillboard = await addBillboardSchema.findByIdAndUpdate(id, req.body, { new: true });
+	try {
+		const { id } = req.params;
+		const updatedData = req.body;
+		// Handle file uploads for new images
+		if (req.files) {
+			const uploadedImages = req.files.map((file) => file.path);
+			updatedData.billboard_images = uploadedImages;
+		}
 
-        if (!updatedBillboard) {
-            return res.status(404).json({ message: "Billboard not found" });
-        }
-
-        res.status(200).json({ message: "Billboard updated successfully!", billboard: updatedBillboard });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: error.message });
-    }
+		const updatedBillboard = await Billboard.findByIdAndUpdate(id, updatedData, { new: true });
+		if (!updatedBillboard) return res.status(404).json({ message: "Billboard not found" });
+		res.status(200).json({ message: "Billboard updated successfully!", billboard: updatedBillboard });
+	} catch (error) {
+		console.error(error);
+		res.status(500).json({ error: error.message });
+	}
 };
 
-//  Delete a billboard by ID
+// Delete a billboard by ID
 const deleteBillBoard = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const deletedBillboard = await addBillboardSchema.findByIdAndDelete(id);
-
-        if (!deletedBillboard) {
-            return res.status(404).json({ message: "Billboard not found" });
-        }
-
-        res.status(200).json({ message: "Billboard deleted successfully!" });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: error.message });
-    }
+	try {
+		const { id } = req.params;
+		const deletedBillboard = await Billboard.findByIdAndDelete(id);
+		if (!deletedBillboard) return res.status(404).json({ message: "Billboard not found" });
+		res.status(200).json({ message: "Billboard deleted successfully!" });
+	} catch (error) {
+		console.error(error);
+		res.status(500).json({ error: error.message });
+	}
 };
 
-module.exports = {createBillBoard, getBillBoards,getBillBoardById ,updateBillBoard ,deleteBillBoard} ;
+module.exports = { createBillBoard, getBillBoards, getBillBoardById, updateBillBoard, deleteBillBoard };
