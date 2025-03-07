@@ -3,16 +3,45 @@ const LeaseAgreement = require("../model/leaseAgreementModel");
 // Create a new lease agreement
 const createLeaseAgreement = async (req, res) => {
 	try {
-		const { client, billboardLocation, legalDescription, campaignStartDate, campaignEndDate,
-		securityDeposit, rentAmount, rentPaymentFrequency, lateFeeAmount, paymentAddress,
-		annualRentIncrease, percentageIncrease, flatRateIncrease, earlyTerminationAllowed,
-		earlyTerminationFee, maintenanceResponsibility } = req.body;
+		const {
+			client,
+			billboardLocation,
+			legalDescription,
+			tenantIsOnlyUser,
+			tenantIsUsingBillboard,campaignStartDate,
+			campaignEndDate,
+			securityDeposit,
+			rentAmount,
+			rentPaymentFrequency,
+			lateFeeAmount,
+			paymentAddress,
+			annualRentIncrease,
+			percentageIncrease,
+			flatRateIncrease,
+			earlyTerminationAllowed,
+			earlyTerminationFee,
+			maintenanceResponsibility,
+		} = req.body;
 
 		const newLease = new LeaseAgreement({
-			client, billboardLocation, legalDescription, campaignStartDate, campaignEndDate,
-		securityDeposit, rentAmount, rentPaymentFrequency, lateFeeAmount, paymentAddress,
-		annualRentIncrease, percentageIncrease, flatRateIncrease, earlyTerminationAllowed,
-		earlyTerminationFee, maintenanceResponsibility
+			client,
+			billboardLocation,
+			legalDescription,
+			tenantIsOnlyUser,
+			tenantIsUsingBillboard,
+			campaignStartDate,
+			campaignEndDate,
+			securityDeposit,
+			rentAmount,
+			rentPaymentFrequency,
+			lateFeeAmount,
+			paymentAddress,
+			annualRentIncrease,
+			percentageIncrease,
+			flatRateIncrease,
+			earlyTerminationAllowed,
+			earlyTerminationFee,
+			maintenanceResponsibility,
 		});
 
 		await newLease.save();
