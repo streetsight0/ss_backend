@@ -1,4 +1,88 @@
 const Invoice = require("../model/invoiceModel");
+const nodemailer = require("nodemailer");
+const fs = require("fs");
+const path = require("path");
+const dotenv = require("dotenv");
+
+dotenv.config();
+const sendInvoiceEmail = async (req, res) => {
+	try {
+		const { to, subject, body } = req.body;
+		const file = req.files?.pdf; // Get uploaded file
+
+		if (!to || !file) {
+			return res.status(400).json({ error: "Missing email or PDF file" });
+		}
+
+		// Define upload path
+		const uploadPath = path.join(__dirname, "../uploads", file.name);
+		console.log("Upload path:", uploadPath);
+
+		// Ensure the uploads directory exists
+		const uploadDir = path.dirname(uploadPath);
+		if (!fs.existsSync(uploadDir)) {
+			fs.mkdirSync(uploadDir, { recursive: true });
+		}
+
+		// Move the file and await completion
+		await new Promise((resolve, reject) => {
+			file.mv(uploadPath, (err) => {
+				if (err) {
+					console.error("Error moving file:", err);
+					reject("Error uploading file");
+				} else {
+					console.log("File uploaded successfully");
+					resolve();
+				}
+			});
+		});
+
+		// Set up email transporter
+		const transporter = nodemailer.createTransport({
+			service: "Gmail",
+			auth: {
+				user: process.env.EMAIL_USER,
+				pass: process.env.EMAIL_PASS,
+			},
+		});
+
+		// Send email with PDF attachment
+		const mailOptions = {
+			from: process.env.EMAIL_USER,
+			to,
+			subject,
+			text: body,
+			attachments: [{ filename: file.name, path: uploadPath }],
+		};
+
+		// Await the email sending and handle success or failure
+		const info = await transporter.sendMail(mailOptions);
+		console.log("Email sent successfully:", info.response);
+
+		// Send success response
+		res.json({ message: "Invoice email sent successfully!" });
+
+		// Delete the file after email sent
+		try {
+			fs.unlinkSync(uploadPath); // Delete file immediately
+			console.log("File deleted successfully");
+		} catch (deleteError) {
+			console.error("Error deleting file:", deleteError);
+		}
+	} catch (error) {
+		console.error("Error sending email:", error);
+		// Ensure only one response is sent
+		if (!res.headersSent) {
+			res.status(500).json({ error: "Failed to send invoice email" });
+		}
+	}
+};
+
+
+
+
+
+
 
 // Create a new invoice
 const createInvoice = async (req, res) => {
@@ -80,4 +164,10 @@ const deleteInvoice = async (req, res) => {
   }
 };
 
-module.exports = { createInvoice, getInvoices, getInvoiceById, updateInvoice, deleteInvoice };
+module.exports = {
+	sendInvoiceEmail,createInvoice,
+	getInvoices,
+	getInvoiceById,
+	updateInvoice,
+	deleteInvoice,
+};
