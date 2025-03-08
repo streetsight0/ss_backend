@@ -2,19 +2,55 @@ const Billboard = require("../model/billBoardModel");
 const { upload, cloudinary } = require("../config/cloudinary");
 
 // Create a new billboard
+// const createBillBoard = async (req, res) => {
+// 	try {
+// 		console.log("Received Body:", req.body); // Log form data
+// 		console.log("Received Files:", req.files);
+// 		const uploadedImages = req.files.map((file) => file.path); // Extract image URLs
+// 		const billboard = new Billboard({ ...req.body, billboard_images: uploadedImages });
+// 		await billboard.save();
+// 		res.status(201).json({ message: "Billboard created successfully!", billboard });
+// 	} catch (error) {
+// 		console.error(error);
+// 		res.status(500).json({ error: error.message });
+// 	}
+// };
 const createBillBoard = async (req, res) => {
 	try {
-		console.log("Received Body:", req.body); // Log form data
-		console.log("Received Files:", req.files);
-		const uploadedImages = req.files.map((file) => file.path); // Extract image URLs
-		const billboard = new Billboard({ ...req.body, billboard_images: uploadedImages });
+		
+
+		// Extract uploaded file paths (if any)
+		const uploadedImages =
+			req.files?.length > 0 ? req.files.map((file) => file.path) : [];
+
+		// Accept URLs from request body (Ensure it's an array)
+		const urlImages = Array.isArray(req.body.billboard_images)
+			? req.body.billboard_images
+			: req.body.billboard_images
+			? [req.body.billboard_images]
+			: [];
+
+		// Combine both uploaded images and URL images
+		const allImages = [...uploadedImages, ...urlImages];
+
+		// Create billboard object
+		const billboard = new Billboard({
+			...req.body,
+			billboard_images: allImages,
+		});
+
+		// Save to database
 		await billboard.save();
-		res.status(201).json({ message: "Billboard created successfully!", billboard });
+
+		res
+			.status(201)
+			.json({ message: "Billboard created successfully!", billboard });
 	} catch (error) {
-		console.error(error);
+		console.error("Error creating billboard:", error);
 		res.status(500).json({ error: error.message });
 	}
 };
+
 
 // Get all billboards
 const getBillBoards = async (req, res) => {
