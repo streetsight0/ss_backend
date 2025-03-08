@@ -19,7 +19,7 @@ const billBoardSchema = new mongoose.Schema({
 		required: true,
 	},
 	pricePerMonth: {
-		type: "number",
+		type: "string",
 		required: true,
 	},
 	billboard_images: [{ type: String }],
