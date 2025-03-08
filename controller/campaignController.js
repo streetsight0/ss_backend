@@ -2,15 +2,40 @@ const Campaign = require('../model/campaignModel');
 const cloudinary = require("../config/cloudinary");
 
 // Create a new campaign with image uploads
+// Create a new campaign with image uploads
 const createCampaign = async (req, res) => {
-  try {
-    const imageUrls = req.files.map((file) => file.path); // Extract Cloudinary URLs
-    const campaign = new Campaign({ ...req.body, campaign_images: imageUrls });
-    await campaign.save();
-    res.status(201).json({ data: campaign });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
+	try {
+		console.log("Request received:", req.body, req.files); // Debugging
+
+		// Extract uploaded file paths if any, otherwise use an empty array
+		const uploadedImages = req.files ? req.files.map((file) => file.path) : [];
+
+		// Ensure campaign_images from body is an array
+		const imageUrls = req.body.campaign_images
+			? Array.isArray(req.body.campaign_images)
+				? req.body.campaign_images
+				: [req.body.campaign_images] // Convert single string to array
+			: [];
+
+		// Merge uploaded files & image URLs
+		const campaignImages = [...uploadedImages, ...imageUrls].filter(Boolean);
+
+		// Create and save the campaign
+		const campaign = new Campaign({
+			campaign_name: req.body.campaign_name,
+			campaign_start_date: req.body.campaign_start_date,
+			campaign_end_date: req.body.campaign_end_date,
+			campaign_images: campaignImages.length > 0 ? campaignImages : undefined, // Avoid empty array
+			client_id: req.body.client_id,
+			billboards: req.body.billboards || [],
+		});
+
+		await campaign.save();
+		res.status(201).json({ campaign });
+	} catch (error) {
+		console.error("Error creating campaign:", error);
+		res.status(500).json({ success: false, error: error.message });
+	}
 };
 
 // Get all campaigns
