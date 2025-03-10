@@ -5,8 +5,7 @@ const cloudinary = require("../config/cloudinary");
 // Create a new campaign with image uploads
 const createCampaign = async (req, res) => {
 	try {
-		console.log("Request received:", req.body, req.files); // Debugging
-
+		
 		// Extract uploaded file paths if any, otherwise use an empty array
 		const uploadedImages = req.files ? req.files.map((file) => file.path) : [];
 
@@ -25,6 +24,7 @@ const createCampaign = async (req, res) => {
 			campaign_name: req.body.campaign_name,
 			campaign_start_date: req.body.campaign_start_date,
 			campaign_end_date: req.body.campaign_end_date,
+      campaign_rent_monthly:req.body.campaign_rent_monthly,
 			campaign_images: campaignImages.length > 0 ? campaignImages : undefined, // Avoid empty array
 			client_id: req.body.client_id,
 			billboards: req.body.billboards || [],
