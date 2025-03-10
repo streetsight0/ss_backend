@@ -3,9 +3,10 @@ const Client = require("../model/clientModel");
 // Create a new client
 const createClient = async (req, res) => {
   try {
-    const { client_name, client_email, company_name, additional_companies, address, contact } = req.body;
+    const { client_logo,client_name, client_email, company_name, additional_companies, address, contact } = req.body;
 
     const newClient = new Client({
+      client_logo,
       client_name,
       client_email,
       company_name,
