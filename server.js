@@ -92,6 +92,12 @@ app.post("/login", async (req, res) => {
 	}
 	
 });
+// **Logout Route**
+app.post("/api/logout", (req, res) => {
+	// Clear token cookie
+	res.clearCookie("token", { httpOnly: true, secure: false, sameSite: "Lax" });
+	res.status(200).json({ message: "Logout successful" });
+});
 
 app.use("/api/billboard", routePath);
 app.use("/api/campaign", campRoutePath)
