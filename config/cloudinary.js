@@ -15,14 +15,15 @@ cloudinary.config({
 
 // Multer Storage for Cloudinary
 const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: {
-    folder: "campaigns",
-    format: async () => "jpg",
-    public_id: (req, file) => file.originalname.split(".")[0],
-  },
+	cloudinary: cloudinary,
+	params: {
+		folder: "campaigns",
+		// format: async () => "jpg",
+		allowed_formats: ["jpg", "png", "jpeg", "gif"],
+		// public_id: (req, file) => file.originalname.split(".")[0],
+	},
 });
 
-const upload = multer({ storage });
+const upload = multer({ storage , limits: { fileSize: 10 * 1024 * 1024 } })// 10MB limit});
 
 module.exports = { cloudinary, upload };
