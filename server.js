@@ -11,7 +11,8 @@ const clientRoutePath=require("./routes/clientRoute.js")
 const leaseAgreementRoutePath=require("./routes/leaseAgreementRoute.js")
 const invoiceRoutePath = require("./routes/invoiceRoute.js")
 require("dotenv").config();
-const fileUpload = require("express-fileupload");
+
+const multer = require("multer");
 
 
 const app = express();
@@ -27,7 +28,7 @@ app.use(cors({
 // app.use(cors({ origin: process.env.FRONTEND_URL || "*", credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
-app.use(fileUpload()); // Enable file uploads
+
 
 mongoose
 	.connect(process.env.MONGO_URI, {
