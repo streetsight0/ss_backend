@@ -39,6 +39,32 @@ const createCampaign = async (req, res) => {
 	}
 };
 
+const getCampaignsByClient = async (req, res) => {
+	try {
+		const { clientId } = req.params;
+
+		// Validate client ID
+		if (!clientId) {
+			return res.status(400).json({ error: "Client ID is required" });
+		}
+
+		// Fetch campaigns associated with the client ID
+		const campaigns = await Campaign.find({ client_id: clientId });
+
+		// Check if campaigns exist
+		if (!campaigns || campaigns.length === 0) {
+			return res
+				.status(404)
+				.json({ message: "No campaigns found for this client" });
+		}
+
+		res.status(200).json({ success: true, campaigns });
+	} catch (error) {
+		console.error("Error fetching campaigns:", error);
+		res.status(500).json({ error: "Internal Server Error" });
+	}
+};
+
 // Get all campaigns
 const getCampaigns = async (req, res) => {
 	try {
@@ -135,5 +161,6 @@ module.exports = {
 	getCampaignById,
 	updateCampaign,
 	deleteCampaign,
+	getCampaignsByClient,
 };
 
