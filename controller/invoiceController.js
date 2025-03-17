@@ -5,39 +5,104 @@ const path = require("path");
 const dotenv = require("dotenv");
 
 dotenv.config();
-const sendInvoiceEmail = async (req, res) => {
-	try {
+// const sendInvoiceEmail = async (req, res) => {
+
+// 	try {
+// 		const { to, subject, body } = req.body;
+// 		const file = req.files?.pdf; // Get uploaded file
+
+// 		if (!to || !file) {
+// 			return res.status(400).json({ error: "Missing email or PDF file" });
+// 		}
+
+// 		// Define upload path
+// 		const uploadPath = path.join(__dirname, "../uploads", file.name);
+// 		console.log("Upload path:", uploadPath);
+
+// 		// Ensure the uploads directory exists
+// 		const uploadDir = path.dirname(uploadPath);
+// 		if (!fs.existsSync(uploadDir)) {
+// 			fs.mkdirSync(uploadDir, { recursive: true });
+// 		}
+
+// 		// Move the file and await completion
+// 		await new Promise((resolve, reject) => {
+// 			file.mv(uploadPath, (err) => {
+// 				if (err) {
+// 					console.error("Error moving file:", err);
+// 					reject("Error uploading file");
+// 				} else {
+// 					console.log("File uploaded successfully");
+// 					resolve();
+// 				}
+// 			});
+// 		});
+
+// 		// Set up email transporter
+// 		const transporter = nodemailer.createTransport({
+// 			service: "Gmail",
+// 			auth: {
+// 				user: process.env.EMAIL_USER,
+// 				pass: process.env.EMAIL_PASS,
+// 			},
+// 		});
+
+// 		// Send email with PDF attachment
+// 		const mailOptions = {
+// 			from: process.env.EMAIL_USER,
+// 			to,
+// 			subject,
+// 			text: body,
+// 			attachments: [{ filename: file.name, path: uploadPath }],
+// 		};
+
+// 		// Await the email sending and handle success or failure
+// 		const info = await transporter.sendMail(mailOptions);
+// 		console.log("Email sent successfully:", info.response);
+
+// 		// Send success response
+// 		res.json({ message: "Invoice email sent successfully!" });
+
+// 		// Delete the file after email sent
+// 		try {
+// 			fs.unlinkSync(uploadPath); // Delete file immediately
+// 			console.log("File deleted successfully");
+// 		} catch (deleteError) {
+// 			console.error("Error deleting file:", deleteError);
+// 		}
+// 	} catch (error) {
+// 		console.error("Error sending email:", error);
+// 		// Ensure only one response is sent
+// 		if (!res.headersSent) {
+// 			res.status(500).json({ error: "Failed to send invoice email" });
+// 		}
+// 	}
+// };
+
+
+
+const multer = require("multer");
+
+// Set up storage configuration for multer (we are not saving files permanently, just handling them in memory)
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage }).single("pdf");
+
+const sendInvoiceEmail = (req, res) => {
+	// Use multer to handle the uploaded file
+	upload(req, res, async (err) => {
+		if (err) {
+			console.error("Error uploading file:", err);
+			return res.status(400).json({ error: "Error uploading file" });
+		}
+
 		const { to, subject, body } = req.body;
-		const file = req.files?.pdf; // Get uploaded file
+		const file = req.file; // The uploaded PDF file
 
 		if (!to || !file) {
 			return res.status(400).json({ error: "Missing email or PDF file" });
 		}
 
-		// Define upload path
-		const uploadPath = path.join(__dirname, "../uploads", file.name);
-		console.log("Upload path:", uploadPath);
-
-		// Ensure the uploads directory exists
-		const uploadDir = path.dirname(uploadPath);
-		if (!fs.existsSync(uploadDir)) {
-			fs.mkdirSync(uploadDir, { recursive: true });
-		}
-
-		// Move the file and await completion
-		await new Promise((resolve, reject) => {
-			file.mv(uploadPath, (err) => {
-				if (err) {
-					console.error("Error moving file:", err);
-					reject("Error uploading file");
-				} else {
-					console.log("File uploaded successfully");
-					resolve();
-				}
-			});
-		});
-
-		// Set up email transporter
+		// Set up email transporter using Nodemailer
 		const transporter = nodemailer.createTransport({
 			service: "Gmail",
 			auth: {
@@ -46,36 +111,36 @@ const sendInvoiceEmail = async (req, res) => {
 			},
 		});
 
-		// Send email with PDF attachment
+		// Define mail options, including the PDF as an attachment
 		const mailOptions = {
 			from: process.env.EMAIL_USER,
-			to,
-			subject,
-			text: body,
-			attachments: [{ filename: file.name, path: uploadPath }],
+			to, // Recipient email
+			subject, // Subject of the email
+			text: body, // Body of the email
+			attachments: [
+				{
+					filename: "invoice.pdf", // PDF filename
+					content: file.buffer, // PDF content from buffer (in-memory file)
+					contentType: "application/pdf", // Content type for PDF
+				},
+			],
 		};
 
-		// Await the email sending and handle success or failure
-		const info = await transporter.sendMail(mailOptions);
-		console.log("Email sent successfully:", info.response);
-
-		// Send success response
-		res.json({ message: "Invoice email sent successfully!" });
-
-		// Delete the file after email sent
 		try {
-			fs.unlinkSync(uploadPath); // Delete file immediately
-			console.log("File deleted successfully");
-		} catch (deleteError) {
-			console.error("Error deleting file:", deleteError);
+			// Send the email with the PDF attachment
+			const info = await transporter.sendMail(mailOptions);
+			console.log("Email sent successfully:", info.response);
+
+			// Send success response
+			res.json({ message: "Invoice email sent successfully!" });
+		} catch (error) {
+			console.error("Error sending email:", error);
+			// Ensure only one response is sent
+			if (!res.headersSent) {
+				res.status(500).json({ error: "Failed to send invoice email" });
+			}
 		}
-	} catch (error) {
-		console.error("Error sending email:", error);
-		// Ensure only one response is sent
-		if (!res.headersSent) {
-			res.status(500).json({ error: "Failed to send invoice email" });
-		}
-	}
+	});
 };
 
 
@@ -84,7 +149,17 @@ const sendInvoiceEmail = async (req, res) => {
 
 
 
+
+
 // Create a new invoice
+
+
+
+
+
+
+
+
 const createInvoice = async (req, res) => {
   try {
     const { invoiceNumber, client, campaignName, companyName, month, totalAmount, location } = req.body;
