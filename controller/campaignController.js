@@ -4,10 +4,6 @@ const cloudinary = require("../config/cloudinary");
 // Create a new campaign with image uploads or URLs
 const createCampaign = async (req, res) => {
 	try {
-    // console.log(req.body); // Check the request body
-	// 	console.log(req.files);  
-    // console.log("Files:", req.files);
-		// Extract uploaded file paths if any
 		const uploadedImages = req.files ? req.files.map((file) => file.path) : [];
 
 		// Ensure campaign_images from body is an array
@@ -64,6 +60,7 @@ const getCampaignsByClient = async (req, res) => {
 		res.status(500).json({ error: "Internal Server Error" });
 	}
 };
+
 
 // Get all campaigns
 const getCampaigns = async (req, res) => {
