@@ -10,6 +10,7 @@ const campRoutePath=require("./routes/campaignRoute.js")
 const clientRoutePath=require("./routes/clientRoute.js")
 const leaseAgreementRoutePath=require("./routes/leaseAgreementRoute.js")
 const invoiceRoutePath = require("./routes/invoiceRoute.js")
+const aiPricingRoutePath=require("./routes/aiPricingRoute.js")
 require("dotenv").config();
 
 const multer = require("multer");
@@ -122,6 +123,8 @@ app.use("/api/campaign", campRoutePath)
 app.use("/api/client", clientRoutePath)
 app.use("/api/invoice", invoiceRoutePath);
 app.use("/api/leaseagreement", leaseAgreementRoutePath);
+
+app.use("/api/aipricing", aiPricingRoutePath);
 
 const PORT = process.env.PORT || 5000;
 
