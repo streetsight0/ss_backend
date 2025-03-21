@@ -1,20 +1,6 @@
 const Billboard = require("../model/billBoardModel");
 const { upload, cloudinary } = require("../config/cloudinary");
 
-// Create a new billboard
-// const createBillBoard = async (req, res) => {
-// 	try {
-// 		console.log("Received Body:", req.body); // Log form data
-// 		console.log("Received Files:", req.files);
-// 		const uploadedImages = req.files.map((file) => file.path); // Extract image URLs
-// 		const billboard = new Billboard({ ...req.body, billboard_images: uploadedImages });
-// 		await billboard.save();
-// 		res.status(201).json({ message: "Billboard created successfully!", billboard });
-// 	} catch (error) {
-// 		console.error(error);
-// 		res.status(500).json({ error: error.message });
-// 	}
-// };
 const createBillBoard = async (req, res) => {
 	try {
 		
