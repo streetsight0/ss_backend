@@ -5,9 +5,9 @@ const billBoardSchema = new mongoose.Schema({
 	billboard_series: { type: String, required: true },
 	billboard_type: { type: String, required: true },
 	location: {
-		name: { type: String, required: true }, 
-		latitude: { type: Number, required: true }, 
-		longitude: { type: Number, required: true }, 
+		name: { type: String, required: true },
+		latitude: { type: Number, required: true },
+		longitude: { type: Number, required: true },
 	},
 	size: {
 		type: "string",
@@ -28,6 +28,7 @@ const billBoardSchema = new mongoose.Schema({
 		required: true,
 	},
 	billboard_images: [{ type: String }],
+	status: { type: String, default: "" },
 });
 
 module.exports = mongoose.model("billboards", billBoardSchema);
