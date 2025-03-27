@@ -4,7 +4,7 @@ const { upload, cloudinary } = require("../config/cloudinary");
 const createBillBoard = async (req, res) => {
 	try {
 		// Extract location details
-		const { location } = req.body;
+		const { location,status } = req.body;
 		if (
 			!location ||
 			!location.latitude ||
@@ -36,6 +36,7 @@ const createBillBoard = async (req, res) => {
 		const billboard = new Billboard({
 			...req.body,
 			billboard_images: allImages,
+			status: status || "",
 		});
 
 		// Save to database
@@ -81,30 +82,42 @@ const updateBillBoard = async (req, res) => {
 		const { id } = req.params;
 		const updatedData = req.body;
 
-			if (req.body.location) {
-				const { location } = req.body;
-				if (!location.name || !location.latitude || !location.longitude) {
-					return res
-						.status(400)
-						.json({
-							error: "Location, latitude, longitude, and name are required",
-						});
-				}
-				updatedData.location = {
-					name: location.name,
-					latitude: parseFloat(location.latitude),
-					longitude: parseFloat(location.longitude),
-				};
+		if (req.body.location) {
+			const { location } = req.body;
+			if (!location.name || !location.latitude || !location.longitude) {
+				return res.status(400).json({
+					error: "Location, latitude, longitude, and name are required",
+				});
 			}
+			updatedData.location = {
+				name: location.name,
+				latitude: parseFloat(location.latitude),
+				longitude: parseFloat(location.longitude),
+			};
+		}
 		// Handle file uploads for new images
 		if (req.files) {
 			const uploadedImages = req.files.map((file) => file.path);
 			updatedData.billboard_images = uploadedImages;
 		}
+		// If the status is provided in the request, update it
+		if (req.body.status) {
+			updatedData.status = req.body.status;
+		}
 
-		const updatedBillboard = await Billboard.findByIdAndUpdate(id, updatedData, { new: true });
-		if (!updatedBillboard) return res.status(404).json({ message: "Billboard not found" });
-		res.status(200).json({ message: "Billboard updated successfully!", billboard: updatedBillboard });
+		const updatedBillboard = await Billboard.findByIdAndUpdate(
+			id,
+			updatedData,
+			{ new: true }
+		);
+		if (!updatedBillboard)
+			return res.status(404).json({ message: "Billboard not found" });
+		res
+			.status(200)
+			.json({
+				message: "Billboard updated successfully!",
+				billboard: updatedBillboard,
+			});
 	} catch (error) {
 		console.error(error);
 		res.status(500).json({ error: error.message });
