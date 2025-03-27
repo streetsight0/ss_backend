@@ -3,7 +3,20 @@ const { upload, cloudinary } = require("../config/cloudinary");
 
 const createBillBoard = async (req, res) => {
 	try {
-		
+		// Extract location details
+		const { location } = req.body;
+		if (
+			!location ||
+			!location.latitude ||
+			!location.longitude ||
+			!location.name
+		) {
+			return res
+				.status(400)
+				.json({
+					error: "Location, latitude, longitude, and name are required",
+				});
+		}
 
 		// Extract uploaded file paths (if any)
 		const uploadedImages =
@@ -67,6 +80,22 @@ const updateBillBoard = async (req, res) => {
 	try {
 		const { id } = req.params;
 		const updatedData = req.body;
+
+			if (req.body.location) {
+				const { location } = req.body;
+				if (!location.name || !location.latitude || !location.longitude) {
+					return res
+						.status(400)
+						.json({
+							error: "Location, latitude, longitude, and name are required",
+						});
+				}
+				updatedData.location = {
+					name: location.name,
+					latitude: parseFloat(location.latitude),
+					longitude: parseFloat(location.longitude),
+				};
+			}
 		// Handle file uploads for new images
 		if (req.files) {
 			const uploadedImages = req.files.map((file) => file.path);
