@@ -21,7 +21,7 @@ const app = express();
 const allowedOrigins = [
 	"https://streetsight.vercel.app",
 	"http://localhost:5173",
-	"https://www.streetsight.ca/",
+	"https://www.streetsight.ca",
 	"streetsight.ca",
 ];
 
