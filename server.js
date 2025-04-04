@@ -17,21 +17,12 @@ const multer = require("multer");
 
 
 const app = express();
-// const allowedOrigins = [
-//     process.env.FRONTEND_URL, 
-//     "http://localhost:5173",
-// 	"https://streetsight.vercel.app/"
-// ].filter(Boolean);
-// app.use(cors({ 
-//     origin: allowedOrigins,
-//     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-//     credentials: true 
-// }));
-// console.log(process.env.FRONTEND_URL);
-// app.use(cors({ origin: " https://streetsight.vercel.app/" || "*", credentials: true }));
+
 const allowedOrigins = [
-    "https://streetsight.vercel.app",
-    "http://localhost:5173"
+	"https://streetsight.vercel.app",
+	"http://localhost:5173",
+	"https://www.streetsight.ca/",
+	"streetsight.ca",
 ];
 
 app.use(cors({
