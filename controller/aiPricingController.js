@@ -1,10 +1,15 @@
 const { OpenAI } = require("openai");
 require("dotenv").config(); // To load your API keys from a .env file
 
-// Initialize OpenAI Client
-const client = new OpenAI({
-	apiKey: process.env.OPENAI_API_KEY, // Make sure you have this key in your .env file
-});
+// Initialize OpenAI Client (only if API key is provided)
+let client = null;
+if (process.env.OPENAI_API_KEY) {
+	client = new OpenAI({
+		apiKey: process.env.OPENAI_API_KEY,
+	});
+} else {
+	console.warn("⚠️  OPENAI_API_KEY not found. AI pricing will return mock data.");
+}
 
 // const generatePriceEstimate = async (req, res) => {
 // 	const { location, type, size } = req.body;
@@ -66,6 +71,13 @@ const generatePriceEstimate = async (req, res) => {
 	if (cachedResponse) {
 		// Return the cached response if available
 		return res.json({ price: cachedResponse });
+	}
+
+	// If OpenAI client is not initialized, return a mock price
+	if (!client) {
+		const mockPrice = `$${(Math.random() * 2000 + 1000).toFixed(2)} - $${(Math.random() * 4000 + 3000).toFixed(2)} per month`;
+		priceCache.set(cacheKey, mockPrice);
+		return res.json({ price: mockPrice, note: "Mock data - OpenAI API key not configured" });
 	}
 
 	try {
