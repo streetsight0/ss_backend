@@ -24,19 +24,61 @@ const allowedOrigins = [
 	"https://streetsight.vercel.app",
 	"http://localhost:5173",
 	"https://www.streetsight.ca",
-	"streetsight.ca",
+	"https://streetsight.ca",
+	"http://localhost:3000",
+	"http://127.0.0.1:5173",
+	"http://localhost:5174",
 ];
 
-app.use(cors({
+const corsOptions = {
     origin: function (origin, callback) {
-        if (!origin || allowedOrigins.includes(origin)) {
+        if (!origin) {
+            return callback(null, true);
+        }
+        
+        const originWithoutTrailingSlash = origin.replace(/\/$/, '');
+        
+        const isAllowed = allowedOrigins.some(allowed => {
+            const allowedWithoutSlash = allowed.replace(/\/$/, '');
+            return originWithoutTrailingSlash === allowedWithoutSlash;
+        });
+        
+        if (isAllowed) {
             callback(null, true);
         } else {
+            console.log("CORS blocked origin:", origin);
+            console.log("Allowed origins:", allowedOrigins);
             callback(new Error("Not allowed by CORS"));
         }
     },
-    credentials: true
-}));
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+    exposedHeaders: ['Content-Type', 'Authorization'],
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
+    maxAge: 86400
+};
+
+app.use((req, res, next) => {
+    const origin = req.headers.origin;
+    if (origin && allowedOrigins.some(allowed => origin.replace(/\/$/, '') === allowed.replace(/\/$/, ''))) {
+        res.header('Access-Control-Allow-Origin', origin);
+        res.header('Access-Control-Allow-Credentials', 'true');
+        res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+        res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
+        res.header('Access-Control-Max-Age', '86400');
+    }
+    
+    if (req.method === 'OPTIONS') {
+        return res.sendStatus(204);
+    }
+    
+    next();
+});
+
+app.use(cors(corsOptions));
+
 app.use(express.json());
 app.use(cookieParser());
 
@@ -104,6 +146,42 @@ app.post("/login", async (req, res) => {
 	}
 	
 });
+
+const handleGoogleOAuth = async (req, res) => {
+	const { email } = req.body;
+	
+	try {
+		if (!email) {
+			return res.status(400).json({ error: "Email is required" });
+		}
+
+		let user = await User.findOne({ email });
+
+		if (!user) {
+			user = new User({
+				email,
+				username: email.split("@")[0],
+			});
+			await user.save();
+		}
+
+		const token = jwt.sign({ email: user.email }, JWT_SECRET, {
+			expiresIn: "1h",
+		});
+
+		res.json({ token });
+	} catch (error) {
+		if (error.code === 11000) {
+			return res.status(400).json({ error: "Email already exists" });
+		}
+		console.error("Google OAuth error:", error);
+		res.status(500).json({ error: "Server error" });
+	}
+};
+
+app.post("/api/auth/google", handleGoogleOAuth);
+app.post("/api/google-login", handleGoogleOAuth);
+
 // **Logout Route**
 app.post("/api/logout", (req, res) => {
 	// Clear token cookie
